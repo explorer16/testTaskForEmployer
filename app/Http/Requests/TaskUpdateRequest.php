@@ -13,7 +13,7 @@ class TaskUpdateRequest extends FormRequest
      */
     public function authorize()
     {
-        return false;
+        return true;
     }
 
     /**
@@ -24,7 +24,6 @@ class TaskUpdateRequest extends FormRequest
     public function rules()
     {
         return [
-            'id' => 'required|integer|exists:tasks,id',
             'title' => 'required|string|min:3|max:30',
             'description' => 'required|string|min:10|max:255',
         ];

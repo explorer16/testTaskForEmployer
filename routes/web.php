@@ -17,4 +17,5 @@ Route::get('/', function () {
     return view('welcome');
 });
 
+Route::post('/tasks/setStatus/{id}', [TaskController::class, 'setStatus'])->name('setStatus');
 Route::resource('tasks', TaskController::class);

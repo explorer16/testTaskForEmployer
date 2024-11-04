@@ -6,6 +6,25 @@
     <title>Список задач</title>
     <!-- Подключение Bootstrap CSS -->
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Подключение Font Awesome для иконок -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+
+    <style>
+        .task-card {
+            position: relative;
+            padding-top: 2rem;
+        }
+        .edit-icon {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+        }
+        .delete-button {
+            position: absolute;
+            bottom: 0.5rem;
+            right: 0.5rem;
+        }
+    </style>
 </head>
 <body>
 <div class="container my-4">
@@ -23,22 +42,51 @@
         </div>
         <div class="col-md-6">
             <select id="statusFilter" class="form-control">
+                <option value="completed">Завершенные</option>
                 <option value="in_progress">В процессе</option>
-                <option value="completed">Завершено</option>
             </select>
         </div>
     </div>
 
-    <!-- Список задач -->
     <div id="tasksList">
         @foreach($tasks as $task)
-            <div class="card mb-3">
+            <div class="card mb-3 task-card">
+                <form action="{{ route('setStatus', $task->id) }}" method="POST" class="edit-icon" style="display:inline-block;">
+                    @csrf
+                    @if($task->completed)
+                        <input type="hidden" name="status" value="0">
+                        <button type="submit" class="btn btn-sm btn-info" title="Снять отметку выполнения">
+                            <i class="fas fa-check-circle"></i>
+                        </button>
+                    @else
+                        <input type="hidden" name="status" value="1">
+                        <button type="submit" class="btn btn-sm btn-info" title="Отметить как выполненное">
+                            <i class="fas fa-check"></i>
+                        </button>
+                    @endif
+                </form>
+
+                <form action="{{ route('tasks.edit', $task->id) }}" method="GET" class="edit-icon" style="display:inline-block;margin-right: 40px">
+                    <button type="submit" class="btn btn-sm btn-warning" title="Редактировать задачу">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                </form>
+
                 <div class="card-body">
                     <div class="d-flex justify-content-between">
                         <h5 class="card-title">{{ $task->title }}</h5>
                         <span class="badge badge-secondary">{{ $task->status }}</span>
                     </div>
                     <p class="card-text">{{ $task->description }}</p>
+
+                    <!-- Кнопка удаления задачи -->
+                    <form action="{{ route('tasks.destroy', $task->id) }}" method="POST" class="delete-button" onsubmit="return confirm('Вы уверены, что хотите удалить эту задачу?');">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="btn btn-sm btn-danger">
+                            <i class="fas fa-trash-alt"></i> Удалить
+                        </button>
+                    </form>
                 </div>
             </div>
         @endforeach

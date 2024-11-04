@@ -22,9 +22,11 @@ class TaskController extends Controller
         $tasks = $tasks->filter()->sort();
 
         $tasks = $tasks->paginate(10);
+        logger($tasks->toArray());
 
         return view('tasks.index', compact('tasks'));
     }
+
 
     public function create() {
         return view('tasks.create');
@@ -39,7 +41,7 @@ class TaskController extends Controller
         return redirect(route('tasks.index'));
     }
 
-    public function show($id)
+    public function edit($id)
     {
         if (!$task = $this->task->find($id)) {
             return response()->json([
@@ -49,7 +51,7 @@ class TaskController extends Controller
             ]);
         }
 
-        return view('tasks.create', compact('task'));
+        return view('tasks.edit', compact('task'));
     }
 
     public function update(TaskUpdateRequest $request, $id)
@@ -58,11 +60,23 @@ class TaskController extends Controller
 
         $task->update($request->all());
 
-        return response()->json([
-            'data' => $task,
-            'message' => 'Task not found',
-            'code' => 404
-        ]);
+        return redirect(route('tasks.index'));
+    }
+
+    public function setStatus(Request $request, $id)
+    {
+        if (!$task = $this->task->find($id)) {
+            return response()->json([
+                'data' => [],
+                'message' => 'Task not found',
+                'code' => 404
+            ]);
+        }
+
+        $task->completed = $request->input('status') == '1';
+        $task->save();
+
+        return redirect()->route('tasks.index')->with('success', 'Статус задачи обновлён.');
     }
 
     public function destroy($id)
@@ -77,10 +91,6 @@ class TaskController extends Controller
 
         $task->delete();
 
-        return response()->json([
-            'data' => [],
-            'message' => 'Task successfully deleted',
-            'code' => 200
-        ]);
+        return redirect(route('tasks.index'));
     }
 }
